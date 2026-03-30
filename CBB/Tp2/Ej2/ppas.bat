@@ -1,7 +1,7 @@
 @echo off
 SET THEFILE=tp2ej1.exe
 echo Linking %THEFILE%
-C:\FPC\3.2.2\bin\i386-win32\ld.exe -b pei-i386 -m i386pe  --gc-sections  -s  --entry=_mainCRTStartup    -o tp2ej1.exe link13628.res
+C:\FPC\3.2.2\bin\i386-win32\ld.exe -b pei-i386 -m i386pe  --gc-sections  -s  --entry=_mainCRTStartup    -o tp2ej1.exe link7496.res
 if errorlevel 1 goto linkend
 C:\FPC\3.2.2\bin\i386-win32\postw32.exe --subsystem console --input tp2ej1.exe --stack 16777216
 if errorlevel 1 goto linkend
