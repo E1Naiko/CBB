@@ -84,16 +84,23 @@ procedure actualizarBDD(var maestro: archMaestro; var detalles: arregloArchDetal
 		
 		for i:=0 to 9 do begin
 			while (not EOF(detalles[i])) do begin
-				read(detalles[i], detAct);
+				read(detalles[i], detAct);//Tenes que usar el proceso leer de la catedra
 				encontre:= false;
 				while (not EOF(maestro) and not encontre) do begin
 					read(maestro, act);
 					if (act.codEmpleado = detAct.codEmpleado) then encontre:= true;
-				end;
+				end; //Esto esta bien dentro de todo despues expand (?)
+				
 				if (encontre) then begin
 					if (act.cantidadDiasCorrespondenDeVacacionesEnEsePeriodo<detAct.cantidadDiasLicenciaSolicitadas) then
-						writeln(ERROR_EXCESO)
+						writeln(ERROR_EXCESO); //Mira Nico como sabe owO
 					else begin
+						// no se como mierda manejar el master, onda tengo que recorrerlo una vez? pero como me aseguro que
+						// detalles (si bien esta ordenado) que este cerrado???
+						//---LuchitoPuesta---
+						//El master viene ordenado de casa -> asumimos que viene empleado 1 -> empleado 2 -> empleado n
+						//Cuando empezas a guardar clavas seek(master,filepos(master)-1) ->En la siguiente linea clavas el write
+						//Se va a pisar y ya te queda Con el orden de empleados, se "automatiza"
 						writeln(act.codEmpleado, ' DEBUG LO ENCONTRE');
 					end;
 				end else
