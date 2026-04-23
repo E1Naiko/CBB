@@ -87,7 +87,7 @@ procedure Leer(var detalle: archDetalle; var act: tipoDetalle);
 			act.codCalzado := ValorA;
 	end;
 	
-procedure minimo(var archDetalles: arrTipoDetalle; var arrResto: arrTipoDetalle; var min: tipoDetalle);
+procedure minimo(var archDetalles: arrArchDetalle; var arrResto: arrTipoDetalle; var min: tipoDetalle);
 	var
 		i, posMin: integer;
 	begin
@@ -210,16 +210,15 @@ procedure Actualizar(var maestro: archMaestro; var detalles: arrArchDetalle);
 var
 	i: integer;
 	master: archMaestro;
-	det: arregloArchDetalle;
+	det: arrArchDetalle;
 	cad: cadCorta;
 
 BEGIN
 	Assign(master, 'maestro.dat');
 	for i:=1 to CANT_DETALLES do begin
 		Str(i, cad);
-		Assign(det, ('detalle' + cad + '.dat'));
+		Assign(det[i], ('detalle' + cad + '.dat'));
 	end;
 	
 	Actualizar(master, det);
 END.
-
