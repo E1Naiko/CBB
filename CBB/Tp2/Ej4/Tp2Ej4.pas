@@ -22,31 +22,125 @@
 
 program Tp2Ej4;
 const
-	Dim: 20;
+	Dim = 20;
+	ValorA = 9999;
+	
 type
-	tipoPelicula = record
-		codigo: integer;
-		nombre: String[50];
-		genero: String[50];
-		director: String[50];
-		duracion: integer;
-		fecha: integer;
-		cantidadAsistentes: integer;
+	cadena = String[50];
+	tipoDetalle = record
+		codigo,
+		 duracion,
+		 fecha,
+		 cantidadAsistentes: integer;
+		nombre, 
+		 genero,
+		 director: cadena;
+		
 	end;
+
+	datosMaestro = record
+		codigo,
+		 duracion: integer;
+		nombre,
+		 genero,
+		 director: cadena;
+	end;
+
 	tipoMaestro = record
-		datos: tipoPelicula;
+		datos: datosMaestro;
 		totalAsistentesSemana: integer;
 	end;
 	
-	archDetalles = File of tipoPelicula;
+	archDetalles = File of tipoDetalle;
 	archMaestro = File of tipoMaestro;
-	arrTipoPeliculas = array [1..Dim] of tipoPelicula;
-	arrArchDetalles = File of tipoPelicula;
+	arrTipoDetalle = array [1..Dim] of tipoDetalle;
+	arrArchDetalles = array [1..Dim] of archDetalles;
 	
+procedure Leer(var detalle: archDetalles; var act: tipoDetalle);
+	begin
+		if(not EoF(detalle))then
+			read(detalle, act)
+		else
+			act.codigo := ValorA;
+	end;
 	
+procedure minimo(var archDetalles: arrArchDetalles; var arrResto: arrTipoDetalle; var min: tipoDetalle);
+	var
+		i, posMin: integer;
+	begin
+		min.codigo := ValorA;
+		posMin := -1;
+		
+		for i:= 1 to Dim do begin
+			if (arrResto[i].codigo < min.codigo) then
+			begin
+				min := arrResto[i];
+				posMin := i;
+			end;
+		end;
+	
+		if (min.codigo <> ValorA) then
+			leer(archDetalles[posMin], arrResto[posMin]);
+	end;
+	
+procedure innitMaestro(var nue: tipoMaestro; act: tipoDetalle);
+	begin
+		nue.datos.codigo	:= act.codigo;
+		nue.datos.nombre	:= act.nombre;
+		nue.datos.genero	:= act.genero;
+		nue.datos.director  := act.director;
+		nue.datos.duracion  := act.duracion;
+		nue.totalAsistentesSemana := 0;
+	end;
+	
+procedure generarMaestro(detalles: arrArchDetalles; nombreMaestro: cadena);
+	var
+		maestro: archMaestro;
+		act: tipoMaestro;
+		actCod: integer;
+		min: tipoDetalle;
+		restoDetalles: arrTipoDetalle;
+		i: integer;
+		
+	begin
+		Assign(maestro, nombreMaestro);
+		rewrite(maestro);
+		for i:=1 to Dim do begin
+			reset(detalles[i]);
+			leer(detalles[i], restoDetalles[i]);
+		end;
+		minimo(detalles, restoDetalles, min);
+		actCod:= min.codigo;
+		
+		while (min.codigo <> ValorA) do begin
+			innitMaestro(act, min);
+			actCod:= min.codigo;
+			
+			while (min.codigo = actCod) do begin
+				act.totalAsistentesSemana := act.totalAsistentesSemana + min.cantidadAsistentes;
+				minimo(detalles, restoDetalles, min);
+			end;
+			write(maestro,act);
+		end;
+		
+		for i:=1 to Dim do 
+			close(detalles[i]);
+		close(maestro);
+	end;
+	
+var
+	i: integer;
+	strAux, maestro: cadena;
+	det: arrArchDetalles;
 	
 BEGIN
+	for i:=1 to Dim do begin
+		str(i, strAux);
+		strAux:= ('detalles' + strAux + '.dat');
+		Assign(det[i], strAux);
+	end;
 	
-	
+	maestro:= 'maestro.dat';
+	generarMaestro(det, maestro);
 END.
 
