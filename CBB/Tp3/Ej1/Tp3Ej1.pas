@@ -11,10 +11,12 @@
 	inicialmente marque los registros a borrar y posteriormente
 	compacte el archivo, creando un nuevo archivo sin
 	los registros eliminados.
+
 	b. Implemente otra alternativa donde para quitar los registros se
 	deberá copiar el último registro del archivo en la posición del
 	registro a borrar y luego eliminar del archivo el último registro
 	de forma tal de evitar registros duplicados.
+
 	Nota: Las bajas deben finalizar al recibir el código 100000
 }
 {
@@ -116,27 +118,45 @@ procedure BajaLogica(var a: archEspecie; cod: integer);
 		close(a);
 	end;
 	
-procedure BajaFisica(var a: archEspecie; cod: integer);
+procedure alternativaA(var a, nue: archEspecie);
 	var
-		posBorrar: integer;
+		act:tipoEspecie;
+	begin
+		reset(a);
+		rewrite(nue);
+		while (not eof(a)) do begin
+			read(a, act);
+			if (act.cod<>BORRAR) then
+				write(nue, act);
+		end;
+		close(a);
+		close(nue);
+	end;
+	
+procedure alternativaB(var a: archEspecie; cod: integer); // baja fisica de 1 unico recorrido
+	var
+		posBorrar, borrados: integer;
 		rp, aux: tipoEspecie;
 	begin
 		reset(a);
-		rp.cod:= cod;
+		borrados:= 0;
+		rp.cod:= -999;
 		while(not eof(a)) do begin
 			while(not eof(a)) and (rp.cod <> cod) do
 				read(a,rp);
 			if (rp.cod = BORRAR) then begin
+				borrados:= borrados + 1;
 				posBorrar:= filepos(a)-1;
-				seek(a, filesize(a)-1);
+				seek(a, filesize(a)-borrados-1);
 				read(a, aux);
 				seek(a, posBorrar);
 				write(a,aux);
 				seek(a, filesize(a)-1);
-				truncate(a);
 			end;
-			rp.cod:= BORRAR;
+			rp.cod:= -999;
 		end;
+		seek(a, filesize-borrados);
+		truncate(a);
 		close(a);
 	end;
 var
@@ -144,6 +164,7 @@ var
 	especies: archEspecie;
 BEGIN
 	assign(especies, 'especies.dat');
+	assign(especies, 'especies2.dat');
 	
 	writeln('Ingrese un codigo:');
 	readln(codAct);
@@ -152,6 +173,7 @@ BEGIN
 		writeln('Ingrese otro codigo o ', FIN, ' para terminar:');
 		readln(codAct);
 	end;
-	BajaFisica(especies, BORRAR);
+	alternativaA(especies, nue);
+	alternativaB(especies, BORRAR);
 END.
 
